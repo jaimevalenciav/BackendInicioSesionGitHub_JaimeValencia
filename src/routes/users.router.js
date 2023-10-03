@@ -1,4 +1,4 @@
-// sessions.js
+
 const express = require('express');
 const router = express.Router();
 const usuario = require('../models/User');
@@ -38,11 +38,11 @@ router.get("/profile", async (req, res) => {
     res.render("profile", { first_name, last_name, age, email })
 })
 
-router.post("/login", async (req, res) => {
+/* router.post("/login", async (req, res) => {
     const { email, password} = req.body
     if(!email || !password) 
      return res.status
-})
+}) */
 
 router.post('/register', passport.authenticate("register", { failureRedirect: "/failregister" }), async (req, res) => {
     const { first_name, last_name, email, age, password } = req.body;

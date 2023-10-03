@@ -36,9 +36,8 @@ const initializePassport = () => {
 }
 
 passport.serializeUser(async(user, done) =>{
-    done(null, user.id);
-  });
-  
+    done(null, user.id)
+  })  
 
 passport.deserializeUser(async (id, done) => {
     let user = await userService.findById(id)
@@ -51,18 +50,45 @@ passport.use(
         try {
             const user = await userService.findOne({ email: username });
             if (!user) {
-                return done(null, false);
+                return done(null, false)
             }
             if (!isValidatePassword(password, user.password)) { 
-                return done(null, false);
+                return done(null, false)
             }
-            return done(null, user);
+            return done(null, user)
         } catch (error) {
-            return done(error);
+            return done(error)
         }
     })
 );
 
+passport.use(
+    "register",
+    new localStrategy(
+      { usernameField: "email", passReqToCallback: true },
+      async (req, email, password, done) => {
+        try {
+          const existingUser = await userService.findOne({ email });
+          if (existingUser) {
+            return done(null, false, req.flash("error", "El usuario ya existe en nuestra base de datos"));
+          }
 
+          const newUser = {
+            first_name: req.body.first_name,
+            last_name: req.body.last_name,
+            age: req.body.age,
+            email: email,
+            password: hashPassword(password),
+          }
+
+          const result = await userService.create(newUser)
+          return done(null, result, req.flash("success", "Usuario registrado exitosamente"))
+        } catch (error) {
+          return done(error)
+          console.log(error)
+        }
+      }
+    )
+  )
 
 module.exports = initializePassport
